@@ -1,8 +1,7 @@
-import  user from '../models/user.js';
-import  post  from '../models/post.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import db from '../models'
+import db from '../models/index.cjs';
+
 class UserService {
     // Register a new user
     static async registerUser(userData) {
@@ -18,7 +17,7 @@ class UserService {
 
     // Login method
     static async loginUser(credentials) {
-        const userData = await user.findOne({
+        const userData = await db.user.findOne({
             where: { email: credentials.email },
         });
         if (!userData) {
@@ -39,24 +38,18 @@ class UserService {
 
     // Fetch user with their associated post
     static async getUserWithPost(userId) {
-        return await user.findOne({
+        return await db.user.findOne({
             where: { id: userId },
             attributes: ['name', 'email'],
-            include: [
-                {
-                    model: post,
-                    as: 'post',
-                    attributes: ['title', 'content', 'userId'],
-                },
-            ],
+            include: [{ model: db.post, as: 'post', attributes: ['title', 'content', 'userId'] }],
         });
     }
 
     // Get all users with their posts
     static async getAllUserWithPost() {
-        return await user.findAll({
+        return await db.user.findAll({
             attributes: ['name'],
-            include: [{ model: post, as: 'post', attributes: ['title', 'content'] }],
+            include: [{ model: db.post, as: 'post', attributes: ['title', 'content'], required: true }],
         });
     }
 }

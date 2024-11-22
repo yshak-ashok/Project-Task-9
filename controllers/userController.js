@@ -17,7 +17,7 @@ export const userLogin = async (req, res, next) => {
     try {
         const credentials = req.body;
         const { user, token } = await UserService.loginUser(credentials);
-        res.status(200).json({ message: 'Login successful', user, token });
+        res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
         next({ message: error.message, statusCode: 401 });
     }
@@ -90,21 +90,33 @@ export const deletePost = async (req, res, next) => {
         const postId = req.params.id;
         const userId = req.user.id;
         const post = await PostService.getPostById(postId);
-        console.log('post:', post);
-
         if (!post) {
             return res.status(404).json({ success: false, message: 'Post not found' });
         }
-
-        const postUserId = post.userId.toString();
-        console.log(`postuserid:${postUserId}  userid${userId}`);
-        if (postUserId !== userId) {
+        if (post.userId !== userId) {
             return res.status(403).json({ success: false, message: 'Unauthorized to delete this post' });
         }
-
         // Delete the post
         await PostService.deletePost(postId);
         res.status(200).json({ success: true, message: 'Post deleted successfully' });
+    } catch (error) {
+        next({ message: error.message, statusCode: 401 });
+    }
+};
+
+export const paginatedPost = async (req, res, next) => {
+    try {
+        const page = req.query.page;
+        const pageSize = 3;
+        console.log('page',page);
+        const result = await PostService.getPaginatedPost(Number(page), Number(pageSize));
+        res.json({
+            totalItems: result.count,
+            totalPages: Math.ceil(result.count / pageSize),
+            currentPage: page,
+            pageSize: pageSize,
+            data: result.rows
+        });
     } catch (error) {
         next({ message: error.message, statusCode: 401 });
     }

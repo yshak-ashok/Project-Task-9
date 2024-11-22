@@ -8,6 +8,7 @@ import {
     getAllUserData,
     updatePost,
     deletePost,
+    paginatedPost
 } from '../controllers/userController.js'; 
 import userAuthentication from '../middleware/userAuth.js';
 
@@ -21,5 +22,6 @@ userRoute.get('/userPost', userAuthentication, getUserWithPost);
 userRoute.get('/allUserData', userAuthentication, getAllUserData);
 userRoute.put('/updatePost/:id', userAuthentication, updatePost);
 userRoute.delete('/deletePost/:id', userAuthentication, deletePost);
+userRoute.get('/users',userAuthentication, paginatedPost)
 
 export default userRoute;
